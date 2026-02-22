@@ -4,12 +4,12 @@
 int main() {
     Matrix m(3, 3);
 
-    std::cout << "Original Matrix (Zeros):\n";
+    std::cout << "Original Matrix:\n";
     m.print();
 
     m.randomise();
 
-    std::cout << "\nRandomised Matrix:\n";
+    std::cout << "\nRandomised Matrix of Weights:\n";
     m.print();
 
     return 0;

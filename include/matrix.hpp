@@ -10,8 +10,9 @@ private:
     std::vector<std::vector<double>> data;
 
 public:
-    // constructor
+    // constructors
     Matrix(int rows, int cols);
+    Matrix(const std::vector<std::vector<double>> &data);
 
     // method to randomise weights
     void randomise();
@@ -22,9 +23,12 @@ public:
 
     // mathematical functions
     Matrix add(const Matrix &other) const;
-    Matrix subtract(const Matrix &other) const;
     Matrix dot(const Matrix &other) const;
     Matrix transpose() const;
 
     void print() const;
+
+    // operator overloading
+    double operator()(int row, int col) const;
+    bool operator==(const Matrix &other) const;
 };
