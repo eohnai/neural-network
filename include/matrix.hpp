@@ -32,7 +32,8 @@ public:
     // operator overloading
     Matrix operator+(const Matrix &other) const;
     Matrix operator*(const Matrix &other) const;
-    double operator()(int row, int col) const;
+    double operator()(int row, int col) const; // reading
+    double &operator()(int row, int col);      // writing
     bool operator==(const Matrix &other) const;
 
     // flexible activation function - lambda

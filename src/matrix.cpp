@@ -123,7 +123,13 @@ Matrix Matrix::operator*(const Matrix &other) const {
     return this->dot(other);
 }
 
+// reading
 double Matrix::operator()(int row, int col) const {
+    return this->data[row][col];
+}
+
+// writing
+double &Matrix::operator()(int row, int col) {
     return this->data[row][col];
 }
 
