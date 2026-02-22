@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <functional>
 
 class Matrix {
 private:
@@ -29,6 +30,11 @@ public:
     void print() const;
 
     // operator overloading
+    Matrix operator+() const;
+    Matrix operator*() const;
     double operator()(int row, int col) const;
     bool operator==(const Matrix &other) const;
+
+    // flexible activation function - lambda
+    void activation(const std::function<double(double)> &func);
 };

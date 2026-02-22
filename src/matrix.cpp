@@ -133,3 +133,11 @@ bool Matrix::operator==(const Matrix &other) const {
 
     return true;
 }
+
+void Matrix::activation(const std::function<double(double)> &func) {
+    for (int i = 0; i < this->rows; i++) {
+        for (int j = 0; j < this->cols; j++) {
+            this->data[i][j] = func(data[i][j]);
+        }
+    }
+}

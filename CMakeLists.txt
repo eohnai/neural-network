@@ -6,6 +6,7 @@ include_directories(include)
 
 # main app setup
 add_executable(network
+    src/activation.cpp
     src/main.cpp
     src/matrix.cpp
 )
@@ -21,9 +22,11 @@ FetchContent_MakeAvailable(googletest)
 
 # test version of executables
 add_executable(run_tests
+    tests/activation_test.cpp
     tests/add_test.cpp
     tests/dot_test.cpp 
     tests/transpose_test.cpp
+    src/activation.cpp
     src/matrix.cpp
 )
 
