@@ -1,7 +1,7 @@
 #pragma once
 
-#include <vector>
 #include <functional>
+#include <vector>
 
 class Matrix {
 private:
@@ -30,8 +30,8 @@ public:
     void print() const;
 
     // operator overloading
-    Matrix operator+() const;
-    Matrix operator*() const;
+    Matrix operator+(const Matrix &other) const;
+    Matrix operator*(const Matrix &other) const;
     double operator()(int row, int col) const;
     bool operator==(const Matrix &other) const;
 

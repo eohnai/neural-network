@@ -24,8 +24,8 @@ Matrix::Matrix(const std::vector<std::vector<double>> &data) {
 // randomise weights
 void Matrix::randomise() {
     // set up RNG
-    std::random_device rd;
-    std::mt19937_64 gen(rd());
+    thread_local static std::random_device rd;
+    thread_local static std::mt19937_64 gen(rd());
 
     // define distribution range
     std::uniform_real_distribution<double> dis(-1.0, 1.0);
@@ -115,6 +115,14 @@ Matrix Matrix::transpose() const {
 }
 
 // operator overloadings
+Matrix Matrix::operator+(const Matrix &other) const {
+    return this->add(other);
+}
+
+Matrix Matrix::operator*(const Matrix &other) const {
+    return this->dot(other);
+}
+
 double Matrix::operator()(int row, int col) const {
     return this->data[row][col];
 }
