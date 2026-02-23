@@ -2,7 +2,7 @@
 #include "../include/activation.hpp"
 #include "../include/matrix.hpp"
 
-Network::Network(int inputNodes, int hiddenNodes, int outputNodes)
+Network::Network(int inputNodes, int hiddenNodes, int outputNodes, ActivationType type)
     // initialiser list
     : weight_ih(hiddenNodes, inputNodes),
       weight_ho(outputNodes, hiddenNodes),
@@ -11,6 +11,14 @@ Network::Network(int inputNodes, int hiddenNodes, int outputNodes)
     this->inputNodes = inputNodes;
     this->hiddenNodes = hiddenNodes;
     this->outputNodes = outputNodes;
+
+    if (type == ActivationType::RELU) {
+        this->activation = Activation::ReLU;
+        this->activationDerivative = Activation::ReLUDerivative;
+    } else if (type == ActivationType::SIGMOID) {
+        this->activation = Activation::sigmoid;
+        this->activationDerivative = Activation::sigmoidDerivative;
+    }
 
     // randomise the weights and biases
     this->weight_ih.randomise();
@@ -27,9 +35,13 @@ Matrix Network::computeLayer(Matrix &input, Matrix &weights, Matrix &biases, con
     result = result + biases;
 
     // 3. activation function
-    result.activation(func);
+    result = result.map(func);
 
     return result;
+}
+
+double Network::MSE(double target, double predicted) {
+    return target - predicted;
 }
 
 Matrix Network::forward(Matrix input) {
@@ -38,10 +50,43 @@ Matrix Network::forward(Matrix input) {
     }
 
     // layer 1: input -> hidden
-    Matrix hidden = computeLayer(input, this->weight_ih, this->bias_h, Activation::ReLU);
+    Matrix hidden = computeLayer(input, this->weight_ih, this->bias_h, this->activation);
 
     // layer 2: hidden -> output
-    Matrix output = computeLayer(hidden, this->weight_ho, this->bias_o, Activation::ReLU);
+    Matrix output = computeLayer(hidden, this->weight_ho, this->bias_o, this->activation);
 
     return output;
+}
+
+void Network::train(Matrix input, Matrix target) {
+    // 1. FORWARD PASS
+    Matrix hidden = computeLayer(input, this->weight_ih, this->bias_h, this->activation);
+    Matrix output = computeLayer(hidden, this->weight_ho, this->bias_o, this->activation);
+
+    // 2. OUTPUT LAYER BACKPROP
+    // a. calculate the output error (Prediction - Target)
+    Matrix output_error = output - target;
+
+    // b. calculate output gradients
+    Matrix output_gradients = output_error.hadamardProduct(output.map(this->activationDerivative));
+
+    double learningRate = 0.01;
+    output_gradients = output_gradients.map([learningRate](double x) { return x * learningRate; });
+
+    // c. calculate hidden layer error before changing weight_ho!
+    // this pushes the error backwards to the hidden nodes
+    Matrix hidden_error = this->weight_ho.transpose() * output_error;
+
+    // d. calculate weight deltas and update weights & biases
+    Matrix weight_ho_deltas = output_gradients * hidden.transpose();
+    this->weight_ho = this->weight_ho - weight_ho_deltas;
+    this->bias_o = this->bias_o - output_gradients;
+
+    // 3. HIDDEN LAYER BACKPROP
+    Matrix hidden_gradients = hidden_error.hadamardProduct(hidden.map(this->activationDerivative));
+    hidden_gradients = hidden_gradients.map([learningRate](double x) { return x * learningRate; });
+
+    Matrix weight_ih_deltas = hidden_gradients * input.transpose();
+    this->weight_ih = this->weight_ih - weight_ih_deltas;
+    this->bias_h = this->bias_h - hidden_gradients;
 }

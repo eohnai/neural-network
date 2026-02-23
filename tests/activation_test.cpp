@@ -6,7 +6,7 @@
 TEST(ActivationTest, ReLU) {
     Matrix a({{-0.5, 2.0}, {0.5, -5.0}});
 
-    a.activation(Activation::ReLU);
+    a = a.map(Activation::ReLU);
 
     EXPECT_EQ(a(0, 0), 0.0);
     EXPECT_EQ(a(0, 1), 2.0);
@@ -17,7 +17,7 @@ TEST(ActivationTest, ReLU) {
 TEST(ActivationTest, sigmoid) {
     Matrix a({{-0.5, 2.0}, {0.5, -5.0}});
 
-    a.activation(Activation::sigmoid);
+    a = a.map(Activation::sigmoid);
 
     EXPECT_EQ(a(0, 0), 1.0 / (1.0 + std::exp(-(-0.5))));
     EXPECT_EQ(a(0, 1), 1.0 / (1.0 + std::exp(-2.0)));

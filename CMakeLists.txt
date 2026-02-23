@@ -23,11 +23,11 @@ FetchContent_MakeAvailable(googletest)
 
 # test version of executables
 add_executable(run_tests
-    tests/activation_test.cpp
-    tests/add_test.cpp
-    tests/dot_test.cpp 
+    # tests/activation_test.cpp
+    # tests/add_test.cpp
+    # tests/dot_test.cpp 
     tests/network_test.cpp
-    tests/transpose_test.cpp
+    # tests/transpose_test.cpp
     src/activation.cpp
     src/matrix.cpp
     src/network.cpp

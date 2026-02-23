@@ -24,18 +24,21 @@ public:
 
     // mathematical functions
     Matrix add(const Matrix &other) const;
+    Matrix subtract(const Matrix &other) const;
     Matrix dot(const Matrix &other) const;
+    Matrix hadamardProduct(const Matrix &other) const;
     Matrix transpose() const;
 
     void print() const;
 
     // operator overloading
     Matrix operator+(const Matrix &other) const;
+    Matrix operator-(const Matrix &other) const;
     Matrix operator*(const Matrix &other) const;
     double operator()(int row, int col) const; // reading
     double &operator()(int row, int col);      // writing
     bool operator==(const Matrix &other) const;
 
-    // flexible activation function - lambda
-    void activation(const std::function<double(double)> &func);
+    // flexible activation / activation derivative function - lambda
+    Matrix map(const std::function<double(double)> &func) const;
 };

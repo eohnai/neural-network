@@ -72,6 +72,21 @@ Matrix Matrix::add(const Matrix &other) const {
     return res;
 }
 
+Matrix Matrix::subtract(const Matrix &other) const {
+    if (this->rows != other.rows || this->cols != other.cols) {
+        throw std::invalid_argument("Matrix dimensions do not match for addition!");
+    }
+
+    Matrix res(this->rows, this->cols);
+    for (int i = 0; i < this->rows; ++i) {
+        for (int j = 0; j < this->cols; ++j) {
+            res.data[i][j] = this->data[i][j] - other.data[i][j];
+        }
+    }
+
+    return res;
+}
+
 Matrix Matrix::dot(const Matrix &other) const {
     if (this->cols != other.rows) {
         throw std::invalid_argument("Matrix dimensions do not match for dot product!");
@@ -102,6 +117,21 @@ Matrix Matrix::dot(const Matrix &other) const {
     return res;
 }
 
+Matrix Matrix::hadamardProduct(const Matrix &other) const {
+    if (this->rows != other.rows || this->cols != other.cols) {
+        throw std::invalid_argument("Matrix dimensions must match for Hadamard Product!");
+    }
+
+    Matrix result(this->rows, this->cols);
+    for (int i = 0; i < this->rows; ++i) {
+        for (int j = 0; j < this->cols; ++j) {
+            result.data[i][j] = this->data[i][j] * other.data[i][j];
+        }
+    }
+
+    return result;
+}
+
 Matrix Matrix::transpose() const {
     Matrix transposed(this->cols, this->rows);
 
@@ -117,6 +147,10 @@ Matrix Matrix::transpose() const {
 // operator overloadings
 Matrix Matrix::operator+(const Matrix &other) const {
     return this->add(other);
+}
+
+Matrix Matrix::operator-(const Matrix &other) const {
+    return this->subtract(other);
 }
 
 Matrix Matrix::operator*(const Matrix &other) const {
@@ -148,10 +182,14 @@ bool Matrix::operator==(const Matrix &other) const {
     return true;
 }
 
-void Matrix::activation(const std::function<double(double)> &func) {
+Matrix Matrix::map(const std::function<double(double)> &func) const {
+    Matrix res(this->rows, this->cols);
+
     for (int i = 0; i < this->rows; i++) {
         for (int j = 0; j < this->cols; j++) {
-            this->data[i][j] = func(data[i][j]);
+            res.data[i][j] = func(data[i][j]);
         }
     }
+
+    return res;
 }
