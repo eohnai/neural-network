@@ -1,6 +1,7 @@
 #include "matrix.hpp"
 #include <iostream>
 #include <random>
+#include <cassert>
 
 // constructor when provided number of rows and columns
 Matrix::Matrix(int rows, int cols) {
@@ -74,7 +75,7 @@ Matrix Matrix::add(const Matrix &other) const {
 
 Matrix Matrix::subtract(const Matrix &other) const {
     if (this->rows != other.rows || this->cols != other.cols) {
-        throw std::invalid_argument("Matrix dimensions do not match for addition!");
+        throw std::invalid_argument("Matrix dimensions do not match for subtraction!");
     }
 
     Matrix res(this->rows, this->cols);
@@ -164,7 +165,8 @@ double Matrix::operator()(int row, int col) const {
 
 // writing
 double &Matrix::operator()(int row, int col) {
-    return this->data[row][col];
+    assert(row >= 0 && row < rows && col >=0 && col < cols);
+    return data[row][col];
 }
 
 bool Matrix::operator==(const Matrix &other) const {

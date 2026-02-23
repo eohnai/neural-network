@@ -1,12 +1,12 @@
-#include "../include/activation.hpp"
+#include "activation.hpp"
 #include <cmath>
 
 double Activation::ReLU(double x) {
-    return x < 0 ? 0 : x;
+    return x <= 0 ? 0 : x;
 }
 
 double Activation::ReLUDerivative(double x) {
-    return x < 0 ? 0 : 1;
+    return x <= 0 ? 0 : 1;
 }
 
 double Activation::sigmoid(double x) {

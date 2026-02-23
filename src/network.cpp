@@ -1,6 +1,6 @@
-#include "../include/network.hpp"
-#include "../include/activation.hpp"
-#include "../include/matrix.hpp"
+#include "network.hpp"
+#include "activation.hpp"
+#include "matrix.hpp"
 
 Network::Network(int inputNodes, int hiddenNodes, int outputNodes, ActivationType type)
     // initialiser list
@@ -11,6 +11,7 @@ Network::Network(int inputNodes, int hiddenNodes, int outputNodes, ActivationTyp
     this->inputNodes = inputNodes;
     this->hiddenNodes = hiddenNodes;
     this->outputNodes = outputNodes;
+    this->learningRate = 0.01;
 
     if (type == ActivationType::RELU) {
         this->activation = Activation::ReLU;
@@ -27,7 +28,7 @@ Network::Network(int inputNodes, int hiddenNodes, int outputNodes, ActivationTyp
     this->bias_o.randomise();
 }
 
-Matrix Network::computeLayer(Matrix &input, Matrix &weights, Matrix &biases, const std::function<double(double)> &func) {
+Matrix Network::computeLayer(const Matrix &input, const Matrix &weights, const Matrix &biases, const std::function<double(double)> &func) {
     // 1. dot product
     Matrix result = weights * input;
 
@@ -40,11 +41,7 @@ Matrix Network::computeLayer(Matrix &input, Matrix &weights, Matrix &biases, con
     return result;
 }
 
-double Network::MSE(double target, double predicted) {
-    return target - predicted;
-}
-
-Matrix Network::forward(Matrix input) {
+Matrix Network::forward(const Matrix &input) {
     if (input.getRows() != this->inputNodes || input.getCols() != 1) {
         throw std::invalid_argument("Input matrix dimensions must match the network's input nodes (N x 1).");
     }
@@ -58,7 +55,11 @@ Matrix Network::forward(Matrix input) {
     return output;
 }
 
-void Network::train(Matrix input, Matrix target) {
+void Network::train(const Matrix &input, const Matrix &target) {
+    if (input.getRows() != this->inputNodes || input.getCols() != 1) {
+        throw std::invalid_argument("Input matrix dimensions must match the network's input nodes (N x 1).");
+    }
+    
     // 1. FORWARD PASS
     Matrix hidden = computeLayer(input, this->weight_ih, this->bias_h, this->activation);
     Matrix output = computeLayer(hidden, this->weight_ho, this->bias_o, this->activation);
@@ -70,7 +71,7 @@ void Network::train(Matrix input, Matrix target) {
     // b. calculate output gradients
     Matrix output_gradients = output_error.hadamardProduct(output.map(this->activationDerivative));
 
-    double learningRate = 0.01;
+    double learningRate = this->learningRate;
     output_gradients = output_gradients.map([learningRate](double x) { return x * learningRate; });
 
     // c. calculate hidden layer error before changing weight_ho!

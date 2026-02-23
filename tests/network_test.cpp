@@ -1,6 +1,6 @@
-#include "../include/activation.hpp"
-#include "../include/matrix.hpp"
-#include "../include/network.hpp"
+#include "activation.hpp"
+#include "matrix.hpp"
+#include "network.hpp"
 #include <cstdlib>
 #include <gtest/gtest.h>
 #include <vector>

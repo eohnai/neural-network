@@ -1,5 +1,5 @@
-#include "../include/activation.hpp"
-#include "../include/matrix.hpp"
+#include "activation.hpp"
+#include "matrix.hpp"
 #include <gtest/gtest.h>
 
 // TEST(TestSuiteName, IndividualTestName)
