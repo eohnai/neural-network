@@ -6,14 +6,14 @@ int main() {
     std::cout << "--- Initializing 2D Matrix Baseline Arrays ---\n";
 
     // Experiment A Setup (CPU-bound loop test)
-    Matrix dot1(500, 500);
-    Matrix dot2(500, 500);
+    Matrix dot1(1000, 1000);
+    Matrix dot2(1000, 1000);
     dot1.randomise();
     dot2.randomise();
 
     // Experiment B Setup (Cache-bound memory test)
-    Matrix cache1(4000, 4000);
-    Matrix cache2(4000, 4000);
+    Matrix cache1(10000, 10000);
+    Matrix cache2(10000, 10000);
     cache1.randomise();
     cache2.randomise();
 
@@ -32,7 +32,7 @@ int main() {
 
     auto endA = std::chrono::steady_clock::now();
     auto elapsedA = std::chrono::duration_cast<std::chrono::milliseconds>(endA - startA);
-    std::cout << "Matrix Multiplication (500x500) Time: " << elapsedA.count() << " ms\n";
+    std::cout << "Matrix Multiplication (1000x1000) Time: " << elapsedA.count() << " ms\n";
 
     // =================================================================
     // TIMING EXPERIMENT B: Element-Wise Addition (O(N^2) Cache Stress)
@@ -47,7 +47,7 @@ int main() {
 
     auto endB = std::chrono::steady_clock::now();
     auto elapsedB = std::chrono::duration_cast<std::chrono::milliseconds>(endB - startB);
-    std::cout << "Matrix Addition (4000x4000) Time: " << elapsedB.count() << " ms\n\n";
+    std::cout << "Matrix Addition (10000x10000) Time: " << elapsedB.count() << " ms\n\n";
 
     // =================================================================
     // THE ANTI-CHEAT CHECKSUM
