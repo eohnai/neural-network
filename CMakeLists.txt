@@ -12,25 +12,31 @@ add_executable(network
     src/network.cpp
 )
 
-# Google Test setup
-include(FetchContent)
-FetchContent_Declare(
-  googletest
-  GIT_REPOSITORY https://github.com/google/googletest.git
-  GIT_TAG        v1.14.0
-)
-FetchContent_MakeAvailable(googletest)
+# # Google Test setup
+# include(FetchContent)
+# FetchContent_Declare(
+#   googletest
+#   GIT_REPOSITORY https://github.com/google/googletest.git
+#   GIT_TAG        v1.14.0
+# )
+# FetchContent_MakeAvailable(googletest)
 
-# test version of executables
-add_executable(run_tests
-    # tests/activation_test.cpp
-    # tests/add_test.cpp
-    # tests/dot_test.cpp 
-    tests/network_test.cpp
-    # tests/transpose_test.cpp
+# # test version of executables
+# add_executable(run_tests
+#     # tests/activation_test.cpp
+#     # tests/add_test.cpp
+#     # tests/dot_test.cpp 
+#     tests/network_test.cpp
+#     # tests/transpose_test.cpp
+#     src/activation.cpp
+#     src/matrix.cpp
+#     src/network.cpp
+# )
+
+add_executable(run_benchmark
+    src/benchmark.cpp
     src/activation.cpp
     src/matrix.cpp
-    src/network.cpp
 )
 
-target_link_libraries(run_tests GTest::gtest_main)
+# target_link_libraries(run_tests GTest::gtest_main)

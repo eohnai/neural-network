@@ -47,6 +47,33 @@ To ensure everything is working correctly, you can run the test suite:
 ./run_tests
 ```
 
+## Running Benchmarks
+
+To gather hardware optimization metrics, compile the project under **Release Mode** to enable maximum compiler optimization flags (`-O3`), then execute the benchmark target:
+
+````bash
+cmake -DCMAKE_BUILD_TYPE=Release ..
+make
+./run_benchmark
+
+## Performance Benchmarks
+
+To ensure the custom linear algebra engine optimizes cache locality and memory layout efficiently, a microbenchmark suite is used to track execution speeds under a Release compilation (`-O3`).
+
+### Hardware Environment
+- **CPU:** Apple M-Series (MacBook M2 Air)
+- **Compiler:** Clang / GCC (C++17)
+
+### Implementation Comparison
+
+| Operation | Matrix Dimensions | 2D Vector Layout (Baseline) | 1D Flat Vector Layout (Optimized) | Speedup |
+| :--- | :--- | :--- | :--- | :--- |
+| **Matrix Multiplication (`dot`)** | $500 \times 500$ | 680 ms | *TBD* | *TBD* |
+| **Matrix Addition (`add`)** | $4000 \times 4000$ | 118 ms | *TBD* | *TBD* |
+
+### Analysis & Observations
+- **2D Vector Overhead:** The baseline uses a nested vector structure (`std::vector<std::vector<double>>`). This introduces significant heap fragmentation because each row is allocated at a distinct memory address, resulting in persistent CPU L1/L2 cache misses during sequential loops.
+
 ## Project Structure
 
 ```text
@@ -67,7 +94,7 @@ cpp-nn/
     ├── dot_test.cpp
     ├── network_test.cpp
     └── transpose_test.cpp
-```
+````
 
 ## License
 
