@@ -1,6 +1,6 @@
 #include "activation.hpp"
 #include "matrix.hpp"
-#include "network.hpp"
+#include "neural_network.hpp"
 #include <cstdlib>
 #include <gtest/gtest.h>
 #include <vector>
@@ -11,7 +11,7 @@ TEST(NetworkTest, ForwardPassShape) {
     input(1, 0) = 0.5;
     input(2, 0) = -1.5;
 
-    Network nn(input.getRows(), 5, 2, ActivationType::RELU);
+    NeuralNetwork nn(input.getRows(), 5, 2, ActivationType::RELU);
 
     Matrix output = nn.forward(input);
 
@@ -24,7 +24,7 @@ TEST(NetworkTest, ForwardPassShape) {
 
 TEST(NetworkTest, TrainXOR) {
     // 1. Setup Architecture: 2 inputs, 4 hidden nodes, 1 output
-    Network nn(2, 4, 1, ActivationType::SIGMOID);
+    NeuralNetwork nn(2, 4, 1, ActivationType::SIGMOID);
 
     // 2. Prepare XOR training data using your vector constructor
     std::vector<Matrix> inputs = {

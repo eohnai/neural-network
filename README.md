@@ -66,13 +66,13 @@ To ensure the custom linear algebra engine optimizes cache locality and memory l
 
 ### Implementation Comparison
 
-| Operation | Matrix Dimensions | 2D Vector Layout (Baseline) | 1D Flat Vector Layout (Optimized) | Speedup |
+| Operation | Matrix Dimensions | Nested Vector Layout (Baseline) | Flat Vector Layout (Optimized) | Speedup |
 | :--- | :--- | :--- | :--- | :--- |
 | **Matrix Multiplication (`dot`)** | $1000 \times 1000$ | 5685 ms | *TBD* | *TBD* |
 | **Matrix Addition (`add`)** | $10000 \times 10000$ | 1401 ms | *TBD* | *TBD* |
 
 ### Analysis & Observations
-- **2D Vector Overhead:** The baseline uses a nested vector structure (`std::vector<std::vector<double>>`). This introduces significant heap fragmentation because each row is allocated at a distinct memory address, resulting in persistent CPU L1/L2 cache misses during sequential loops.
+- **Nested Vector Overhead:** The baseline uses a nested vector structure (`std::vector<std::vector<double>>`). This introduces significant heap fragmentation because each row is allocated at a distinct memory address, resulting in persistent CPU L1/L2 cache misses during sequential loops.
 
 ## Project Structure
 
@@ -81,8 +81,10 @@ cpp-nn/
 ├── CMakeLists.txt      # CMake configuration file
 ├── include/            # Header files (.hpp)
 │   ├── activation.hpp  # Activation functions
-│   ├── matrix.hpp      # Custom Matrix class
-│   └── network.hpp     # Neural Network class
+│   ├── matrix.hpp      # Public Matrix alias
+│   ├── flat_matrix.hpp # Flat-vector Matrix implementation
+│   ├── nested_matrix.hpp # Nested-vector Matrix implementation
+│   └── neural_network.hpp # NeuralNetwork class
 ├── src/                # Source files (.cpp)
 │   ├── activation.cpp
 │   ├── main.cpp        # Main entry point

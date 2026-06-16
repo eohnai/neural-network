@@ -1,8 +1,8 @@
-#include "network.hpp"
+#include "neural_network.hpp"
 #include "activation.hpp"
 #include "matrix.hpp"
 
-Network::Network(int inputNodes, int hiddenNodes, int outputNodes, ActivationType type)
+NeuralNetwork::NeuralNetwork(int inputNodes, int hiddenNodes, int outputNodes, ActivationType type)
     // initialiser list
     : weight_ih(hiddenNodes, inputNodes),
       weight_ho(outputNodes, hiddenNodes),
@@ -28,7 +28,7 @@ Network::Network(int inputNodes, int hiddenNodes, int outputNodes, ActivationTyp
     this->bias_o.randomise();
 }
 
-Matrix Network::computeLayer(const Matrix &input, const Matrix &weights, const Matrix &biases, const std::function<double(double)> &func) {
+Matrix NeuralNetwork::computeLayer(const Matrix &input, const Matrix &weights, const Matrix &biases, const std::function<double(double)> &func) {
     // 1. dot product
     Matrix result = weights * input;
 
@@ -41,7 +41,7 @@ Matrix Network::computeLayer(const Matrix &input, const Matrix &weights, const M
     return result;
 }
 
-Matrix Network::forward(const Matrix &input) {
+Matrix NeuralNetwork::forward(const Matrix &input) {
     if (input.getRows() != this->inputNodes || input.getCols() != 1) {
         throw std::invalid_argument("Input matrix dimensions must match the network's input nodes (N x 1).");
     }
@@ -55,7 +55,7 @@ Matrix Network::forward(const Matrix &input) {
     return output;
 }
 
-void Network::train(const Matrix &input, const Matrix &target) {
+void NeuralNetwork::train(const Matrix &input, const Matrix &target) {
     if (input.getRows() != this->inputNodes || input.getCols() != 1) {
         throw std::invalid_argument("Input matrix dimensions must match the network's input nodes (N x 1).");
     }

@@ -1,10 +1,10 @@
-#include "matrix.hpp"
+#include "nested_matrix.hpp"
 #include <iostream>
 #include <random>
 #include <cassert>
 
 // constructor when provided number of rows and columns
-Matrix::Matrix(int rows, int cols) {
+NestedMatrix::NestedMatrix(int rows, int cols) {
     // assigning dimensions
     this->rows = rows;
     this->cols = cols;
@@ -14,7 +14,7 @@ Matrix::Matrix(int rows, int cols) {
 }
 
 // constructor when provided matrix
-Matrix::Matrix(const std::vector<std::vector<double>> &data) {
+NestedMatrix::NestedMatrix(const std::vector<std::vector<double>> &data) {
     this->data = data;
 
     // initialise the rows and columns also
@@ -23,7 +23,7 @@ Matrix::Matrix(const std::vector<std::vector<double>> &data) {
 }
 
 // randomise weights
-void Matrix::randomise() {
+void NestedMatrix::randomise() {
     // set up RNG
     thread_local static std::random_device rd;
     thread_local static std::mt19937_64 gen(rd());
@@ -39,15 +39,15 @@ void Matrix::randomise() {
 }
 
 // getters
-int Matrix::getRows() const {
+int NestedMatrix::getRows() const {
     return rows;
 }
 
-int Matrix::getCols() const {
+int NestedMatrix::getCols() const {
     return cols;
 }
 
-void Matrix::print() const {
+void NestedMatrix::print() const {
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
             std::cout << data[i][j] << " ";
@@ -58,12 +58,12 @@ void Matrix::print() const {
 }
 
 // mathematical operations
-Matrix Matrix::add(const Matrix &other) const {
+NestedMatrix NestedMatrix::add(const NestedMatrix &other) const {
     if (this->rows != other.rows || this->cols != other.cols) {
         throw std::invalid_argument("Matrix dimensions do not match for addition!");
     }
 
-    Matrix res(this->rows, this->cols);
+    NestedMatrix res(this->rows, this->cols);
     for (int i = 0; i < this->rows; ++i) {
         for (int j = 0; j < this->cols; ++j) {
             res.data[i][j] = this->data[i][j] + other.data[i][j];
@@ -73,12 +73,12 @@ Matrix Matrix::add(const Matrix &other) const {
     return res;
 }
 
-Matrix Matrix::subtract(const Matrix &other) const {
+NestedMatrix NestedMatrix::subtract(const NestedMatrix &other) const {
     if (this->rows != other.rows || this->cols != other.cols) {
         throw std::invalid_argument("Matrix dimensions do not match for subtraction!");
     }
 
-    Matrix res(this->rows, this->cols);
+    NestedMatrix res(this->rows, this->cols);
     for (int i = 0; i < this->rows; ++i) {
         for (int j = 0; j < this->cols; ++j) {
             res.data[i][j] = this->data[i][j] - other.data[i][j];
@@ -88,12 +88,12 @@ Matrix Matrix::subtract(const Matrix &other) const {
     return res;
 }
 
-Matrix Matrix::dot(const Matrix &other) const {
+NestedMatrix NestedMatrix::dot(const NestedMatrix &other) const {
     if (this->cols != other.rows) {
         throw std::invalid_argument("Matrix dimensions do not match for dot product!");
     }
 
-    Matrix res(this->rows, other.cols);
+    NestedMatrix res(this->rows, other.cols);
 
     /*
     Example:
@@ -118,12 +118,12 @@ Matrix Matrix::dot(const Matrix &other) const {
     return res;
 }
 
-Matrix Matrix::hadamardProduct(const Matrix &other) const {
+NestedMatrix NestedMatrix::hadamardProduct(const NestedMatrix &other) const {
     if (this->rows != other.rows || this->cols != other.cols) {
         throw std::invalid_argument("Matrix dimensions must match for Hadamard Product!");
     }
 
-    Matrix result(this->rows, this->cols);
+    NestedMatrix result(this->rows, this->cols);
     for (int i = 0; i < this->rows; ++i) {
         for (int j = 0; j < this->cols; ++j) {
             result.data[i][j] = this->data[i][j] * other.data[i][j];
@@ -133,8 +133,8 @@ Matrix Matrix::hadamardProduct(const Matrix &other) const {
     return result;
 }
 
-Matrix Matrix::transpose() const {
-    Matrix transposed(this->cols, this->rows);
+NestedMatrix NestedMatrix::transpose() const {
+    NestedMatrix transposed(this->cols, this->rows);
 
     for (int i = 0; i < this->rows; ++i) {
         for (int j = 0; j < this->cols; ++j) {
@@ -146,30 +146,30 @@ Matrix Matrix::transpose() const {
 }
 
 // operator overloadings
-Matrix Matrix::operator+(const Matrix &other) const {
+NestedMatrix NestedMatrix::operator+(const NestedMatrix &other) const {
     return this->add(other);
 }
 
-Matrix Matrix::operator-(const Matrix &other) const {
+NestedMatrix NestedMatrix::operator-(const NestedMatrix &other) const {
     return this->subtract(other);
 }
 
-Matrix Matrix::operator*(const Matrix &other) const {
+NestedMatrix NestedMatrix::operator*(const NestedMatrix &other) const {
     return this->dot(other);
 }
 
 // reading
-double Matrix::operator()(int row, int col) const {
+double NestedMatrix::operator()(int row, int col) const {
     return this->data[row][col];
 }
 
 // writing
-double &Matrix::operator()(int row, int col) {
+double &NestedMatrix::operator()(int row, int col) {
     assert(row >= 0 && row < rows && col >=0 && col < cols);
     return data[row][col];
 }
 
-bool Matrix::operator==(const Matrix &other) const {
+bool NestedMatrix::operator==(const NestedMatrix &other) const {
     if (this->rows != other.rows || this->cols != other.cols) {
         return false;
     }
@@ -184,8 +184,8 @@ bool Matrix::operator==(const Matrix &other) const {
     return true;
 }
 
-Matrix Matrix::map(const std::function<double(double)> &func) const {
-    Matrix res(this->rows, this->cols);
+NestedMatrix NestedMatrix::map(const std::function<double(double)> &func) const {
+    NestedMatrix res(this->rows, this->cols);
 
     for (int i = 0; i < this->rows; i++) {
         for (int j = 0; j < this->cols; j++) {

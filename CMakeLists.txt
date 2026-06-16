@@ -8,8 +8,8 @@ include_directories(include)
 add_executable(network
     src/activation.cpp
     src/main.cpp
-    src/matrix.cpp
-    src/network.cpp
+    src/flat_matrix.cpp
+    src/neural_network.cpp
 )
 
 # Google Test setup
@@ -29,14 +29,14 @@ add_executable(run_tests
     tests/network_test.cpp
     # tests/transpose_test.cpp
     src/activation.cpp
-    src/matrix.cpp
-    src/network.cpp
+    src/flat_matrix.cpp
+    src/neural_network.cpp
 )
 
 add_executable(run_benchmark
     src/benchmark.cpp
     src/activation.cpp
-    src/matrix.cpp
+    src/flat_matrix.cpp
 )
 
 target_link_libraries(run_tests GTest::gtest_main)

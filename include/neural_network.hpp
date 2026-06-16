@@ -6,7 +6,7 @@ enum class ActivationType {
     SIGMOID
 };
 
-class Network {
+class NeuralNetwork {
 private:
     // 3 layers of nodes
     int inputNodes;
@@ -26,7 +26,7 @@ private:
 
 public:
     // constructor
-    Network(int inputNodes, int hiddenNodes, int outputNodes, ActivationType type);
+    NeuralNetwork(int inputNodes, int hiddenNodes, int outputNodes, ActivationType type);
 
     // methods
     Matrix forward(const Matrix &input);
