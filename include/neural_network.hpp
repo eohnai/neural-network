@@ -1,5 +1,8 @@
-#include "matrix.hpp"
+#include <cstdint>
 #include <functional>
+#include <optional>
+
+#include "matrix.hpp"
 
 enum class ActivationType {
     RELU,
@@ -8,25 +11,31 @@ enum class ActivationType {
 
 class NeuralNetwork {
 private:
-    // 3 layers of nodes
-    int inputNodes;
-    int hiddenNodes;
-    int outputNodes;
+    int inputNodeCount;
+    int hiddenNodeCount;
+    int outputNodeCount;
     double learningRate;
-    std::function<double(double)> activation;
+    std::function<double(double)> activationFunction;
     std::function<double(double)> activationDerivative;
 
-    // matrices for weights
-    Matrix weight_ih;
-    Matrix weight_ho;
-    Matrix bias_h;
-    Matrix bias_o;
+    Matrix weightsInputToHidden;
+    Matrix weightsHiddenToOutput;
+    Matrix biasHidden;
+    Matrix biasOutput;
 
-    Matrix computeLayer(const Matrix &input, const Matrix &weights, const Matrix &biases, const std::function<double(double)> &func);
+    Matrix forwardLayer(const Matrix &layerInput, const Matrix &weights, const Matrix &bias) const;
+    void validateInput(const Matrix &input) const;
+    void validateTarget(const Matrix &target) const;
 
 public:
     // constructor
-    NeuralNetwork(int inputNodes, int hiddenNodes, int outputNodes, ActivationType type);
+    NeuralNetwork(
+        int inputNodes,
+        int hiddenNodes,
+        int outputNodes,
+        ActivationType type,
+        std::optional<std::uint64_t> seed = std::nullopt
+    );
 
     // methods
     Matrix forward(const Matrix &input);

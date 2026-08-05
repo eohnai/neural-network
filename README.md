@@ -26,10 +26,12 @@ cmake ..
 make
 ```
 
-This will generate two executables in the `build` directory:
+This will generate the following executables in the `build` directory:
 
 - `network`: The main application executable.
 - `run_tests`: The Google Test executable for running unit tests.
+- `run_benchmark`: Matrix-operation benchmark suite.
+- `run_training_benchmark`: End-to-end neural-network training-throughput benchmark.
 
 ## Running the Application
 
@@ -49,30 +51,29 @@ To ensure everything is working correctly, you can run the test suite:
 
 ## Running Benchmarks
 
-To gather hardware optimization metrics, compile the project under **Release Mode** to enable maximum compiler optimization flags (`-O3`), then execute the benchmark target:
+To gather hardware optimization metrics, compile the project under **Release Mode**, then execute both benchmark targets:
 
-````bash
-cmake -DCMAKE_BUILD_TYPE=Release ..
-make
-./run_benchmark
+```bash
+cmake -S . -B build-nested -DCMAKE_BUILD_TYPE=Release
+cmake --build build-nested
+./build-nested/run_benchmark
+./build-nested/run_training_benchmark
+```
 
 ## Performance Benchmarks
 
 To ensure the custom linear algebra engine optimizes cache locality and memory layout efficiently, a microbenchmark suite is used to track execution speeds under a Release compilation (`-O3`).
 
 ### Hardware Environment
+
 - **CPU:** Apple M-Series (MacBook M2 Air)
 - **Compiler:** Clang / GCC (C++17)
 
-### Implementation Comparison
-
-| Operation | Matrix Dimensions | Nested Vector Layout (Baseline) | Flat Vector Layout (Optimized) | Speedup |
-| :--- | :--- | :--- | :--- | :--- |
-| **Matrix Multiplication (`dot`)** | $1000 \times 1000$ | 5685 ms | *TBD* | *TBD* |
-| **Matrix Addition (`add`)** | $10000 \times 10000$ | 1401 ms | *TBD* | *TBD* |
-
 ### Analysis & Observations
+
 - **Nested Vector Overhead:** The baseline uses a nested vector structure (`std::vector<std::vector<double>>`). This introduces significant heap fragmentation because each row is allocated at a distinct memory address, resulting in persistent CPU L1/L2 cache misses during sequential loops.
+- **Workloads:** The matrix suite includes large dense multiplication, element-wise operations, transpose, activation mapping, and MNIST-shaped single-image/minibatch multiplication. The training suite measures an end-to-end `784 -> 128 -> 10` training step.
+- **Reporting:** Run the suite at least five times on a quiet machine and record the median for each workload before comparing implementations.
 
 ## Project Structure
 
@@ -88,15 +89,22 @@ cpp-nn/
 ├── src/                # Source files (.cpp)
 │   ├── activation.cpp
 │   ├── main.cpp        # Main entry point
-│   ├── matrix.cpp
-│   └── network.cpp
-└── tests/              # Google Test files
+│   ├── nested_matrix.cpp
+│   └── neural_network.cpp
+├── reports/            # Benchmark methodology and saved measurements
+│   ├── nested-matrix/
+│   └── flat-matrix/
+└── tests/              # Correctness and benchmark source files
+    ├── benchmarks/     # Built as separate benchmark targets
+    │   ├── matrix_benchmark.cpp
+    │   └── training_benchmark.cpp
     ├── activation_test.cpp
     ├── add_test.cpp
     ├── dot_test.cpp
-    ├── network_test.cpp
-    └── transpose_test.cpp
-````
+    ├── transpose_test.cpp
+    └── xor_test.cpp
+
+```
 
 ## License
 

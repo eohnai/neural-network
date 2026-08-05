@@ -26,14 +26,17 @@ NestedMatrix::NestedMatrix(const std::vector<std::vector<double>> &data) {
 void NestedMatrix::randomise() {
     // set up RNG
     thread_local static std::random_device rd;
-    thread_local static std::mt19937_64 gen(rd());
+    thread_local static std::mt19937_64 generator(rd());
+    randomise(generator);
+}
 
+void NestedMatrix::randomise(std::mt19937_64 &generator) {
     // define distribution range
-    std::uniform_real_distribution<double> dis(-1.0, 1.0);
+    std::uniform_real_distribution<double> distribution(-1.0, 1.0);
 
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
-            data[i][j] = dis(gen);
+            data[i][j] = distribution(generator);
         }
     }
 }

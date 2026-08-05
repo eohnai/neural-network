@@ -8,7 +8,7 @@ include_directories(include)
 add_executable(network
     src/activation.cpp
     src/main.cpp
-    src/flat_matrix.cpp
+    src/nested_matrix.cpp
     src/neural_network.cpp
 )
 
@@ -23,20 +23,28 @@ FetchContent_MakeAvailable(googletest)
 
 # test version of executables
 add_executable(run_tests
-    # tests/activation_test.cpp
-    # tests/add_test.cpp
-    # tests/dot_test.cpp 
-    tests/network_test.cpp
-    # tests/transpose_test.cpp
+    tests/unit/activation_test.cpp
+    tests/unit/add_test.cpp
+    tests/unit/dot_test.cpp
+    tests/unit/transpose_test.cpp
+    tests/integration/forward_pass_shape_test.cpp
+    tests/integration/xor_test.cpp
     src/activation.cpp
-    src/flat_matrix.cpp
+    src/nested_matrix.cpp
     src/neural_network.cpp
 )
 
 add_executable(run_benchmark
-    src/benchmark.cpp
+    tests/benchmarks/matrix_benchmark.cpp
     src/activation.cpp
-    src/flat_matrix.cpp
+    src/nested_matrix.cpp
+)
+
+add_executable(run_training_benchmark
+    tests/benchmarks/training_benchmark.cpp
+    src/activation.cpp
+    src/nested_matrix.cpp
+    src/neural_network.cpp
 )
 
 target_link_libraries(run_tests GTest::gtest_main)

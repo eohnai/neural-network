@@ -1,93 +1,101 @@
 #include "neural_network.hpp"
-#include "activation.hpp"
-#include "matrix.hpp"
 
-NeuralNetwork::NeuralNetwork(int inputNodes, int hiddenNodes, int outputNodes, ActivationType type)
-    // initialiser list
-    : weight_ih(hiddenNodes, inputNodes),
-      weight_ho(outputNodes, hiddenNodes),
-      bias_h(hiddenNodes, 1),
-      bias_o(outputNodes, 1) {
-    this->inputNodes = inputNodes;
-    this->hiddenNodes = hiddenNodes;
-    this->outputNodes = outputNodes;
-    this->learningRate = 0.01;
+#include "activation.hpp"
+#include <random>
+
+NeuralNetwork::NeuralNetwork(int inputNodes, int hiddenNodes, int outputNodes, ActivationType type,
+                             std::optional<std::uint64_t> seed)
+    : inputNodeCount(inputNodes),
+      hiddenNodeCount(hiddenNodes),
+      outputNodeCount(outputNodes),
+      learningRate(0.01),
+      weightsInputToHidden(hiddenNodes, inputNodes),
+      weightsHiddenToOutput(outputNodes, hiddenNodes),
+      biasHidden(hiddenNodes, 1),
+      biasOutput(outputNodes, 1) {
 
     if (type == ActivationType::RELU) {
-        this->activation = Activation::ReLU;
-        this->activationDerivative = Activation::ReLUDerivative;
+        activationFunction = Activation::ReLU;
+        activationDerivative = Activation::ReLUDerivative;
     } else if (type == ActivationType::SIGMOID) {
-        this->activation = Activation::sigmoid;
-        this->activationDerivative = Activation::sigmoidDerivative;
+        activationFunction = Activation::sigmoid;
+        activationDerivative = Activation::sigmoidDerivative;
     }
 
-    // randomise the weights and biases
-    this->weight_ih.randomise();
-    this->weight_ho.randomise();
-    this->bias_h.randomise();
-    this->bias_o.randomise();
+    if (seed.has_value()) {
+        std::mt19937_64 generator(*seed);
+
+        weightsInputToHidden.randomise(generator);
+        weightsHiddenToOutput.randomise(generator);
+        biasHidden.randomise(generator);
+        biasOutput.randomise(generator);
+    } else {
+        weightsInputToHidden.randomise();
+        weightsHiddenToOutput.randomise();
+        biasHidden.randomise();
+        biasOutput.randomise();
+    }
 }
 
-Matrix NeuralNetwork::computeLayer(const Matrix &input, const Matrix &weights, const Matrix &biases, const std::function<double(double)> &func) {
-    // 1. dot product
-    Matrix result = weights * input;
+Matrix NeuralNetwork::forwardLayer(const Matrix &layerInput, const Matrix &weights, const Matrix &bias) const {
+    Matrix weightedInputs = weights * layerInput;
+    Matrix biasedInputs = weightedInputs + bias;
+    return biasedInputs.map(activationFunction);
+}
 
-    // 2. add biases
-    result = result + biases;
+void NeuralNetwork::validateInput(const Matrix &input) const {
+    if (input.getRows() != inputNodeCount || input.getCols() != 1) {
+        throw std::invalid_argument("Input matrix dimensions must match the network's input nodes (N x 1).");
+    }
+}
 
-    // 3. activation function
-    result = result.map(func);
-
-    return result;
+void NeuralNetwork::validateTarget(const Matrix &target) const {
+    if (target.getRows() != outputNodeCount || target.getCols() != 1) {
+        throw std::invalid_argument("Target matrix dimensions must match the network's output nodes (N x 1).");
+    }
 }
 
 Matrix NeuralNetwork::forward(const Matrix &input) {
-    if (input.getRows() != this->inputNodes || input.getCols() != 1) {
-        throw std::invalid_argument("Input matrix dimensions must match the network's input nodes (N x 1).");
-    }
+    validateInput(input);
 
-    // layer 1: input -> hidden
-    Matrix hidden = computeLayer(input, this->weight_ih, this->bias_h, this->activation);
+    Matrix hiddenActivations = forwardLayer(input, weightsInputToHidden, biasHidden);
+    Matrix outputActivations = forwardLayer(hiddenActivations, weightsHiddenToOutput, biasOutput);
 
-    // layer 2: hidden -> output
-    Matrix output = computeLayer(hidden, this->weight_ho, this->bias_o, this->activation);
-
-    return output;
+    return outputActivations;
 }
 
 void NeuralNetwork::train(const Matrix &input, const Matrix &target) {
-    if (input.getRows() != this->inputNodes || input.getCols() != 1) {
-        throw std::invalid_argument("Input matrix dimensions must match the network's input nodes (N x 1).");
-    }
-    
-    // 1. FORWARD PASS
-    Matrix hidden = computeLayer(input, this->weight_ih, this->bias_h, this->activation);
-    Matrix output = computeLayer(hidden, this->weight_ho, this->bias_o, this->activation);
+    validateInput(input);
+    validateTarget(target);
 
-    // 2. OUTPUT LAYER BACKPROP
-    // a. calculate the output error (Prediction - Target)
-    Matrix output_error = output - target;
+    // Forward pass: calculate activations for the hidden and output layers.
+    Matrix hiddenActivations = forwardLayer(input, weightsInputToHidden, biasHidden);
+    Matrix outputActivations = forwardLayer(hiddenActivations, weightsHiddenToOutput, biasOutput);
 
-    // b. calculate output gradients
-    Matrix output_gradients = output_error.hadamardProduct(output.map(this->activationDerivative));
+    // Backpropagation: a delta is the loss derivative with respect to a layer's
+    // pre-activation values. The output error is the squared-loss derivative
+    // with respect to the output activations.
+    Matrix outputError = outputActivations - target;
+    Matrix outputActivationDerivative = outputActivations.map(activationDerivative);
+    Matrix outputDelta = outputError.hadamardProduct(outputActivationDerivative);
 
-    double learningRate = this->learningRate;
-    output_gradients = output_gradients.map([learningRate](double x) { return x * learningRate; });
+    Matrix hiddenError = weightsHiddenToOutput.transpose() * outputDelta;
+    Matrix hiddenActivationDerivative = hiddenActivations.map(activationDerivative);
+    Matrix hiddenDelta = hiddenError.hadamardProduct(hiddenActivationDerivative);
 
-    // c. calculate hidden layer error before changing weight_ho!
-    // this pushes the error backwards to the hidden nodes
-    Matrix hidden_error = this->weight_ho.transpose() * output_error;
+    // Gradients describe how each parameter changes the loss.
+    Matrix weightsHiddenToOutputGradient = outputDelta * hiddenActivations.transpose();
+    Matrix biasOutputGradient = outputDelta;
+    Matrix weightsInputToHiddenGradient = hiddenDelta * input.transpose();
+    Matrix biasHiddenGradient = hiddenDelta;
 
-    // d. calculate weight deltas and update weights & biases
-    Matrix weight_ho_deltas = output_gradients * hidden.transpose();
-    this->weight_ho = this->weight_ho - weight_ho_deltas;
-    this->bias_o = this->bias_o - output_gradients;
+    const auto scaleByLearningRate = [this](double value) {
+        return value * learningRate;
+    };
 
-    // 3. HIDDEN LAYER BACKPROP
-    Matrix hidden_gradients = hidden_error.hadamardProduct(hidden.map(this->activationDerivative));
-    hidden_gradients = hidden_gradients.map([learningRate](double x) { return x * learningRate; });
-
-    Matrix weight_ih_deltas = hidden_gradients * input.transpose();
-    this->weight_ih = this->weight_ih - weight_ih_deltas;
-    this->bias_h = this->bias_h - hidden_gradients;
+    // Gradient descent subtracts a learning-rate-scaled gradient from each parameter.
+    weightsHiddenToOutput = weightsHiddenToOutput - weightsHiddenToOutputGradient.map(scaleByLearningRate);
+    biasOutput = biasOutput - biasOutputGradient.map(scaleByLearningRate);
+    weightsInputToHidden = weightsInputToHidden - weightsInputToHiddenGradient.map(scaleByLearningRate);
+    biasHidden = biasHidden - biasHiddenGradient.map(scaleByLearningRate);
 }

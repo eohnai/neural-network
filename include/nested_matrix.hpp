@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <vector>
+#include <random>
 
 class NestedMatrix {
 private:
@@ -17,6 +18,7 @@ public:
 
     // method to randomise weights
     void randomise();
+    void randomise(std::mt19937_64 &generator);
 
     // getters
     int getRows() const;

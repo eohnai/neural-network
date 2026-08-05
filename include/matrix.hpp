@@ -1,5 +1,5 @@
 #pragma once
 
-#include "flat_matrix.hpp"
+#include "nested_matrix.hpp"
 
-using Matrix = FlatMatrix;
+using Matrix = NestedMatrix;
