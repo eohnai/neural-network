@@ -2,9 +2,14 @@
 #include <iostream>
 #include <random>
 #include <cassert>
+#include <stdexcept>
 
 // constructor when provided number of rows and columns
 NestedMatrix::NestedMatrix(int rows, int cols) {
+    if (rows < 1 || cols < 1) {
+        throw std::invalid_argument("Matrix must have at least one row and one column!");
+    }
+
     // assigning dimensions
     this->rows = rows;
     this->cols = cols;
@@ -15,11 +20,24 @@ NestedMatrix::NestedMatrix(int rows, int cols) {
 
 // constructor when provided matrix
 NestedMatrix::NestedMatrix(const std::vector<std::vector<double>> &data) {
-    this->data = data;
+    if (data.empty()) {
+        throw std::invalid_argument("Matrix must have at least one row!");
+    }
 
-    // initialise the rows and columns also
-    this->rows = data.size();
-    this->cols = data[0].size();
+    if (data[0].empty()) {
+        throw std::invalid_argument("Matrix must have at least one column!");
+    }
+
+    // check if all rows have the same number of columns
+    for (std::size_t row = 1; row < data.size(); ++row) {
+        if (data[row].size() != data[0].size()) {
+            throw std::invalid_argument("All rows must have the same number of columns!");
+        }
+    }
+
+    this->data = data;
+    this->rows = static_cast<int>(data.size());
+    this->cols = static_cast<int>(data[0].size());
 }
 
 // randomise weights
