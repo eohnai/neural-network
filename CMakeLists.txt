@@ -27,6 +27,7 @@ add_executable(run_tests
     tests/unit/add_test.cpp
     tests/unit/dot_test.cpp
     tests/unit/hadamard_product_test.cpp
+    tests/unit/idx_reader_test.cpp
     tests/unit/matrix_constructor_test.cpp
     tests/unit/subtract_test.cpp
     tests/unit/transpose_test.cpp
@@ -34,6 +35,7 @@ add_executable(run_tests
     tests/integration/network_validation_test.cpp
     tests/integration/xor_test.cpp
     src/activation.cpp
+    src/idx_reader.cpp
     src/nested_matrix.cpp
     src/neural_network.cpp
 )
