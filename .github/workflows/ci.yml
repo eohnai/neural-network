@@ -1,0 +1,26 @@
+name: C++ Neural Network
+
+on:
+    push:
+        branches: [main]
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Check out code
+              uses: actions/checkout@v6
+
+            - name: Configure
+              run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+            - name: Build
+              run: cmake --build build --parallel
+
+            - name: Run tests
+              run: ./build/run_tests
