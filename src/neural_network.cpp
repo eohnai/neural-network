@@ -2,6 +2,7 @@
 
 #include "activation.hpp"
 #include <random>
+#include <stdexcept>
 
 NeuralNetwork::NeuralNetwork(int inputNodes, int hiddenNodes, int outputNodes, ActivationType type,
                              std::optional<std::uint64_t> seed)
