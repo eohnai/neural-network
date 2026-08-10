@@ -26,8 +26,12 @@ add_executable(run_tests
     tests/unit/activation_test.cpp
     tests/unit/add_test.cpp
     tests/unit/dot_test.cpp
+    tests/unit/hadamard_product_test.cpp
+    tests/unit/matrix_constructor_test.cpp
+    tests/unit/subtract_test.cpp
     tests/unit/transpose_test.cpp
     tests/integration/forward_pass_shape_test.cpp
+    tests/integration/network_validation_test.cpp
     tests/integration/xor_test.cpp
     src/activation.cpp
     src/nested_matrix.cpp
