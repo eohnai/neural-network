@@ -7,10 +7,14 @@ include_directories(include)
 # main app setup
 add_executable(network
     src/activation.cpp
+    src/idx_reader.cpp
     src/main.cpp
+    src/mnist_dataset.cpp
     src/nested_matrix.cpp
     src/neural_network.cpp
 )
+
+target_compile_definitions(network PRIVATE NEURAL_NETWORK_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
 # Google Test setup
 include(FetchContent)
@@ -29,6 +33,7 @@ add_executable(run_tests
     tests/unit/hadamard_product_test.cpp
     tests/unit/idx_reader_test.cpp
     tests/unit/matrix_constructor_test.cpp
+    tests/unit/mnist_dataset_test.cpp
     tests/unit/subtract_test.cpp
     tests/unit/transpose_test.cpp
     tests/integration/forward_pass_shape_test.cpp
@@ -36,6 +41,7 @@ add_executable(run_tests
     tests/integration/xor_test.cpp
     src/activation.cpp
     src/idx_reader.cpp
+    src/mnist_dataset.cpp
     src/nested_matrix.cpp
     src/neural_network.cpp
 )
