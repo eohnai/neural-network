@@ -1,19 +1,19 @@
 #pragma once
 
 #include <functional>
-#include <vector>
 #include <random>
+#include <vector>
 
 class NestedMatrix {
-private:
+  private:
     // private so that these values can only be changed by matrix methods
     int rows;
     int cols;
     std::vector<std::vector<double>> data;
 
-public:
+  public:
     // constructors
-    NestedMatrix(int rows, int cols);
+    NestedMatrix(int rowCount, int colCount);
     NestedMatrix(const std::vector<std::vector<double>> &data);
 
     // method to randomise weights

@@ -1,43 +1,47 @@
 #include "nested_matrix.hpp"
+#include <cassert>
 #include <iostream>
 #include <random>
-#include <cassert>
 #include <stdexcept>
 
-// constructor when provided number of rows and columns
-NestedMatrix::NestedMatrix(int rows, int cols) {
-    if (rows < 1 || cols < 1) {
-        throw std::invalid_argument("Matrix must have at least one row and one column!");
+namespace {
+
+int checkDimension(int count) {
+    if (count < 1) {
+        throw std::invalid_argument("Matrix has invalid dimensions!");
     }
 
-    // assigning dimensions
-    this->rows = rows;
-    this->cols = cols;
-
-    // create 2D vector and fill it with 0.0
-    data = std::vector<std::vector<double>>(rows, std::vector<double>(cols, 0.0));
+    return count;
 }
 
+} // namespace
+
+// constructor when provided number of rows and columns
+NestedMatrix::NestedMatrix(int rowCount, int colCount)
+    : rows(checkDimension(rowCount)),
+      cols(checkDimension(colCount)),
+      data(rows, std::vector<double>(cols, 0.0)) {}
+
 // constructor when provided matrix
-NestedMatrix::NestedMatrix(const std::vector<std::vector<double>> &data) {
-    if (data.empty()) {
+NestedMatrix::NestedMatrix(const std::vector<std::vector<double>> &values) {
+    if (values.empty()) {
         throw std::invalid_argument("Matrix must have at least one row!");
     }
 
-    if (data[0].empty()) {
+    if (values[0].empty()) {
         throw std::invalid_argument("Matrix must have at least one column!");
     }
 
     // check if all rows have the same number of columns
-    for (std::size_t row = 1; row < data.size(); ++row) {
-        if (data[row].size() != data[0].size()) {
+    for (std::size_t row = 1; row < values.size(); ++row) {
+        if (values[row].size() != values[0].size()) {
             throw std::invalid_argument("All rows must have the same number of columns!");
         }
     }
 
-    this->data = data;
-    this->rows = static_cast<int>(data.size());
-    this->cols = static_cast<int>(data[0].size());
+    data = values;
+    rows = static_cast<int>(values.size());
+    cols = static_cast<int>(values[0].size());
 }
 
 // randomise weights
@@ -60,13 +64,9 @@ void NestedMatrix::randomise(std::mt19937_64 &generator) {
 }
 
 // getters
-int NestedMatrix::getRows() const {
-    return rows;
-}
+int NestedMatrix::getRows() const { return rows; }
 
-int NestedMatrix::getCols() const {
-    return cols;
-}
+int NestedMatrix::getCols() const { return cols; }
 
 void NestedMatrix::print() const {
     for (int i = 0; i < rows; ++i) {
@@ -167,26 +167,23 @@ NestedMatrix NestedMatrix::transpose() const {
 }
 
 // operator overloadings
-NestedMatrix NestedMatrix::operator+(const NestedMatrix &other) const {
-    return this->add(other);
-}
+NestedMatrix NestedMatrix::operator+(const NestedMatrix &other) const { return this->add(other); }
 
 NestedMatrix NestedMatrix::operator-(const NestedMatrix &other) const {
     return this->subtract(other);
 }
 
-NestedMatrix NestedMatrix::operator*(const NestedMatrix &other) const {
-    return this->dot(other);
-}
+NestedMatrix NestedMatrix::operator*(const NestedMatrix &other) const { return this->dot(other); }
 
 // reading
 double NestedMatrix::operator()(int row, int col) const {
-    return this->data[row][col];
+    assert(row >= 0 && row < rows && col >= 0 && col < cols);
+    return data[row][col];
 }
 
 // writing
 double &NestedMatrix::operator()(int row, int col) {
-    assert(row >= 0 && row < rows && col >=0 && col < cols);
+    assert(row >= 0 && row < rows && col >= 0 && col < cols);
     return data[row][col];
 }
 
