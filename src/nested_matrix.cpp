@@ -6,7 +6,7 @@
 
 namespace {
 
-int checkDimension(int count) {
+int requirePositiveDimension(int count) {
     if (count < 1) {
         throw std::invalid_argument("Matrix has invalid dimensions!");
     }
@@ -18,8 +18,8 @@ int checkDimension(int count) {
 
 // constructor when provided number of rows and columns
 NestedMatrix::NestedMatrix(int rowCount, int colCount)
-    : rows(checkDimension(rowCount)),
-      cols(checkDimension(colCount)),
+    : rows(requirePositiveDimension(rowCount)),
+      cols(requirePositiveDimension(colCount)),
       data(rows, std::vector<double>(cols, 0.0)) {}
 
 // constructor when provided matrix
