@@ -42,7 +42,7 @@ void runBenchmark(const std::string &name, int warmupIterations, int measuredIte
 }
 
 int main() {
-    std::cout << "NestedMatrix benchmark suite\n";
+    std::cout << matrixImplementationName << " benchmark suite\n";
     std::cout << "All timings include result-matrix allocation.\n\n";
 
     const Matrix mnistInputWeights = randomMatrix(128, 784);

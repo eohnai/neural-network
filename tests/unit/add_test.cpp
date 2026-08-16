@@ -1,4 +1,5 @@
 #include "matrix.hpp"
+#include "matrix_test_helper.hpp"
 #include <gtest/gtest.h>
 
 // TEST(TestSuiteName, IndividualTestName)
@@ -20,15 +21,15 @@ TEST(Add, InvalidDimensions) {
 }
 
 TEST(Add, InvalidDimensionsWithInitialisedValues) {
-    Matrix a({{1.0, 2.0}, {3.0, 4.0}});
-    Matrix b({{6.0, 5.0, 4.0}});
+    Matrix a = test::makeMatrix<Matrix>(2, 2, {1.0, 2.0, 3.0, 4.0});
+    Matrix b = test::makeMatrix<Matrix>(1, 3, {6.0, 5.0, 4.0});
 
     EXPECT_THROW(a.add(b), std::invalid_argument);
 }
 
 TEST(Add, VectorOutput) {
-    Matrix a({{1.0}, {2.0}, {3.0}});
-    Matrix b({{4.0}, {5.0}, {6.0}});
+    Matrix a = test::makeMatrix<Matrix>(3, 1, {1.0, 2.0, 3.0});
+    Matrix b = test::makeMatrix<Matrix>(3, 1, {4.0, 5.0, 6.0});
 
     Matrix c = a.add(b);
 
@@ -38,8 +39,8 @@ TEST(Add, VectorOutput) {
 }
 
 TEST(Add, MatrixOutput) {
-    Matrix a({{1.0, 2.0}, {3.0, 4.0}});
-    Matrix b({{4.0, 3.0}, {2.0, 1.0}});
+    Matrix a = test::makeMatrix<Matrix>(2, 2, {1.0, 2.0, 3.0, 4.0});
+    Matrix b = test::makeMatrix<Matrix>(2, 2, {4.0, 3.0, 2.0, 1.0});
 
     Matrix c = a.add(b);
 

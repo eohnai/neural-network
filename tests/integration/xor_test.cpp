@@ -1,4 +1,5 @@
 #include "matrix.hpp"
+#include "matrix_test_helper.hpp"
 #include "neural_network.hpp"
 #include <gtest/gtest.h>
 #include <vector>
@@ -7,16 +8,12 @@ TEST(XORTest, TrainXOR) {
     NeuralNetwork nn(2, 4, 1, ActivationType::SIGMOID, 42);
 
     std::vector<Matrix> trainingInputs = {
-        Matrix(std::vector<std::vector<double>>{{0.0}, {0.0}}),
-        Matrix(std::vector<std::vector<double>>{{0.0}, {1.0}}),
-        Matrix(std::vector<std::vector<double>>{{1.0}, {0.0}}),
-        Matrix(std::vector<std::vector<double>>{{1.0}, {1.0}})};
+        test::makeMatrix<Matrix>(2, 1, {0.0, 0.0}), test::makeMatrix<Matrix>(2, 1, {0.0, 1.0}),
+        test::makeMatrix<Matrix>(2, 1, {1.0, 0.0}), test::makeMatrix<Matrix>(2, 1, {1.0, 1.0})};
 
     std::vector<Matrix> trainingTargets = {
-        Matrix(std::vector<std::vector<double>>{{0.0}}),
-        Matrix(std::vector<std::vector<double>>{{1.0}}),
-        Matrix(std::vector<std::vector<double>>{{1.0}}),
-        Matrix(std::vector<std::vector<double>>{{0.0}})};
+        test::makeMatrix<Matrix>(1, 1, {0.0}), test::makeMatrix<Matrix>(1, 1, {1.0}),
+        test::makeMatrix<Matrix>(1, 1, {1.0}), test::makeMatrix<Matrix>(1, 1, {0.0})};
 
     constexpr int epochCount = 50000;
     for (int epoch = 0; epoch < epochCount; ++epoch) {

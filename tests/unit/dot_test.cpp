@@ -1,4 +1,5 @@
 #include "matrix.hpp"
+#include "matrix_test_helper.hpp"
 #include <gtest/gtest.h>
 
 // TEST(TestSuiteName, IndividualTestName)
@@ -20,15 +21,15 @@ TEST(DotProduct, InvalidDimensions) {
 }
 
 TEST(DotProduct, InvalidDimensionsWithInitialisedValues) {
-    Matrix a({{1.0, 2.0}, {3.0, 4.0}});
-    Matrix b({{6.0, 5.0, 4.0}});
+    Matrix a = test::makeMatrix<Matrix>(2, 2, {1.0, 2.0, 3.0, 4.0});
+    Matrix b = test::makeMatrix<Matrix>(1, 3, {6.0, 5.0, 4.0});
 
     EXPECT_THROW(a.dot(b), std::invalid_argument);
 }
 
 TEST(DotProduct, ScalarOutput) {
-    Matrix a({{1.0, 2.0, 3.0}});
-    Matrix b({{4.0}, {5.0}, {6.0}});
+    Matrix a = test::makeMatrix<Matrix>(1, 3, {1.0, 2.0, 3.0});
+    Matrix b = test::makeMatrix<Matrix>(3, 1, {4.0, 5.0, 6.0});
 
     Matrix c = a.dot(b);
 
@@ -36,8 +37,8 @@ TEST(DotProduct, ScalarOutput) {
 }
 
 TEST(DotProduct, MatrixOutput) {
-    Matrix a({{1.0, 2.0}, {3.0, 4.0}});
-    Matrix b({{4.0, 3.0}, {2.0, 1.0}});
+    Matrix a = test::makeMatrix<Matrix>(2, 2, {1.0, 2.0, 3.0, 4.0});
+    Matrix b = test::makeMatrix<Matrix>(2, 2, {4.0, 3.0, 2.0, 1.0});
 
     Matrix c = a.dot(b);
 
@@ -48,12 +49,8 @@ TEST(DotProduct, MatrixOutput) {
 }
 
 TEST(DotProduct, IdentityMatrixTest) {
-    Matrix a({{1.0, 2.0, 3.0},
-              {4.0, 5.0, 6.0}});
-
-    Matrix identity({{1.0, 0.0, 0.0},
-                     {0.0, 1.0, 0.0},
-                     {0.0, 0.0, 1.0}});
+    Matrix a = test::makeMatrix<Matrix>(2, 3, {1.0, 2.0, 3.0, 4.0, 5.0, 6.0});
+    Matrix identity = test::makeMatrix<Matrix>(3, 3, {1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0});
 
     Matrix c = a.dot(identity);
 

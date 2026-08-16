@@ -36,7 +36,7 @@ int main() {
 
     const Matrix prediction = network.forward(input);
 
-    std::cout << "NestedMatrix training benchmark\n";
+    std::cout << matrixImplementationName << " training benchmark\n";
     std::cout << "Network: " << inputNodes << " -> " << hiddenNodes << " -> " << outputNodes << "\n";
     std::cout << "Workload: single-sample training step (forward pass + backpropagation)\n";
     std::cout << std::fixed << std::setprecision(3);

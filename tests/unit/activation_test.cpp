@@ -1,10 +1,11 @@
 #include "activation.hpp"
 #include "matrix.hpp"
+#include "matrix_test_helper.hpp"
 #include <gtest/gtest.h>
 
 // TEST(TestSuiteName, IndividualTestName)
 TEST(ActivationTest, ReLU) {
-    Matrix a({{-0.5, 2.0}, {0.5, -5.0}});
+    Matrix a = test::makeMatrix<Matrix>(2, 2, {-0.5, 2.0, 0.5, -5.0});
 
     a = a.map(Activation::ReLU);
 
@@ -15,7 +16,7 @@ TEST(ActivationTest, ReLU) {
 }
 
 TEST(ActivationTest, sigmoid) {
-    Matrix a({{-0.5, 2.0}, {0.5, -5.0}});
+    Matrix a = test::makeMatrix<Matrix>(2, 2, {-0.5, 2.0, 0.5, -5.0});
 
     a = a.map(Activation::sigmoid);
 

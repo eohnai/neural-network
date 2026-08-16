@@ -1,9 +1,10 @@
 #include "matrix.hpp"
+#include "matrix_test_helper.hpp"
 #include <gtest/gtest.h>
 
 TEST(HadamardProduct, MatrixOutput) {
-    Matrix left({{1.0, 2.0}, {3.0, 4.0}});
-    Matrix right({{5.0, 6.0}, {7.0, 8.0}});
+    Matrix left = test::makeMatrix<Matrix>(2, 2, {1.0, 2.0, 3.0, 4.0});
+    Matrix right = test::makeMatrix<Matrix>(2, 2, {5.0, 6.0, 7.0, 8.0});
 
     Matrix result = left.hadamardProduct(right);
 

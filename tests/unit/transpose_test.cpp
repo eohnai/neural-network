@@ -1,4 +1,5 @@
 #include "matrix.hpp"
+#include "matrix_test_helper.hpp"
 #include <gtest/gtest.h>
 
 // TEST(TestSuiteName, IndividualTestName)
@@ -11,7 +12,7 @@ TEST(Transpose, Dimensions) {
 }
 
 TEST(Transpose, ColumnToRow) {
-    Matrix a({{1.0}, {2.0}, {3.0}});
+    Matrix a = test::makeMatrix<Matrix>(3, 1, {1.0, 2.0, 3.0});
 
     Matrix c = a.transpose();
 
@@ -21,7 +22,7 @@ TEST(Transpose, ColumnToRow) {
 }
 
 TEST(Transpose, RowToColumn) {
-    Matrix a({{1.0, 2.0, 3.0}});
+    Matrix a = test::makeMatrix<Matrix>(1, 3, {1.0, 2.0, 3.0});
 
     Matrix c = a.transpose();
 
@@ -31,7 +32,7 @@ TEST(Transpose, RowToColumn) {
 }
 
 TEST(Transpose, MatrixToMatrix) {
-    Matrix a({{1.0, 2.0}, {3.0, 4.0}, {5.0, 6.0}});
+    Matrix a = test::makeMatrix<Matrix>(3, 2, {1.0, 2.0, 3.0, 4.0, 5.0, 6.0});
 
     Matrix c = a.transpose();
 
