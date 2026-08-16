@@ -64,10 +64,19 @@ To ensure everything is working correctly, you can run the test suite:
 To gather hardware optimization metrics, compile the project under **Release Mode**, then execute both benchmark targets:
 
 ```bash
-cmake -S . -B build-nested -DCMAKE_BUILD_TYPE=Release
-cmake --build build-nested
+cmake -S . -B build-nested -DCMAKE_BUILD_TYPE=Release -DMATRIX_IMPLEMENTATION=NESTED
+cmake --build build-nested --target run_benchmark run_training_benchmark
 ./build-nested/run_benchmark
 ./build-nested/run_training_benchmark
+```
+
+Build the flat implementation in a separate directory so the two executables can be compared directly:
+
+```bash
+cmake -S . -B build-flat -DCMAKE_BUILD_TYPE=Release -DMATRIX_IMPLEMENTATION=FLAT
+cmake --build build-flat --target run_benchmark run_training_benchmark
+./build-flat/run_benchmark
+./build-flat/run_training_benchmark
 ```
 
 ## Performance Benchmarks
@@ -79,25 +88,82 @@ To ensure the custom linear algebra engine optimizes cache locality and memory l
 - **CPU:** Apple M-Series (MacBook M2 Air)
 - **Compiler:** Clang / GCC (C++17)
 
-### NestedMatrix MNIST baseline
+### MNIST training results
 
-The following end-to-end training measurements were collected with the `NestedMatrix` implementation in a Release build on the hardware above. The network uses a `784 -> 128 -> 10` architecture, a fixed initialization/shuffle seed, single-sample gradient descent, and the standard 60,000-image MNIST training split. Test accuracy is evaluated against the 10,000-image test split after training.
+The end-to-end measurements below use a `784 -> 128 -> 10` network, fixed initialization and shuffle seeds, single-sample gradient descent, and the standard 60,000-image MNIST training split. Test accuracy is evaluated against the 10,000-image test split after training.
+
+#### NestedMatrix baseline
 
 | Command | Training workload | Training time | Test accuracy |
 | --- | --- | ---: | ---: |
 | `./build-nested/network 1 1000` | 1 epoch, first 1,000 samples | 0.473 s | 19.22% |
-| `./build-nested/network 1` | 1 epoch, 60,000 samples | 27.925 s | 68.52% |
+| `./build-nested/network 1` | 1 epoch, 60,000 samples; median of 5 independent runs | 28.456 s | 68.52% |
 | `./build-nested/network 5` | 5 epochs, 60,000 samples each | 139.400 s total; 27.880 s/epoch | 82.94% |
 | `./build-nested/network 10` | 10 epochs, 60,000 samples each | 286.427 s total; 28.643 s/epoch | 84.18% |
 | `./build-nested/network 20` | 20 epochs, 60,000 samples each | 574.838 s total; 28.742 s/epoch | 85.54% |
 
-These are a correctness and performance baseline for the future `FlatMatrix` implementation. Accuracy gains diminish after five epochs in this configuration, so a fixed one-epoch workload is sufficient for the initial storage-performance comparison. A fair comparison must use the same seed, sample order, network configuration, compiler flags, and number of epochs. Run each configuration at least five times and compare median epoch time; matrix storage should not materially change the final accuracy.
+#### FlatMatrix results
+
+| Command | Training workload | Training time | Test accuracy |
+| --- | --- | ---: | ---: |
+| `./build-flat/network 1` | 1 epoch, 60,000 samples; median of 5 independent runs | 18.789 s | 68.52% |
+| `./build-flat/network 5` | 5 epochs, 60,000 samples each | 95.575 s total; 19.115 s/epoch | 82.94% |
+| `./build-flat/network 10` | 10 epochs, 60,000 samples each | 190 s total; 19.0 s/epoch | 84.18% |
+| `./build-flat/network 20` | 20 epochs, 60,000 samples each | 381.547 s total; 19.077 s/epoch | 85.54% |
+
+#### 5-epoch comparison
+
+| Implementation | Total training time | Average per epoch | Test accuracy |
+| --- | ---: | ---: | ---: |
+| NestedMatrix | 139.400 s | 27.880 s | 82.94% |
+| FlatMatrix | 95.575 s | 19.115 s | 82.94% |
+
+For this workload, `FlatMatrix` completed the five-epoch run about **1.46x faster**, reducing training time by about **31.4%** while reaching the same deterministic test accuracy.
+
+#### 10-epoch comparison
+
+| Implementation | Total training time | Average per epoch | Test accuracy |
+| --- | ---: | ---: | ---: |
+| NestedMatrix | 286.427 s | 28.643 s | 84.18% |
+| FlatMatrix | 190 s | 19.0 s | 84.18% |
+
+For this workload, `FlatMatrix` completed the 10-epoch run about **1.51x faster**, reducing training time by about **33.7%** while reaching the same deterministic test accuracy.
+
+#### 20-epoch comparison
+
+| Implementation | Total training time | Average per epoch | Test accuracy |
+| --- | ---: | ---: | ---: |
+| NestedMatrix | 574.838 s | 28.742 s | 85.54% |
+| FlatMatrix | 381.547 s | 19.077 s | 85.54% |
+
+For this workload, `FlatMatrix` completed the 20-epoch run about **1.51x faster**, reducing training time by about **33.6%** while reaching the same deterministic test accuracy.
+
+#### Repeated one-epoch comparison
+
+| Implementation | Median training time from 5 fresh runs | Test accuracy |
+| --- | ---: | ---: |
+| NestedMatrix | 28.456 s | 68.52% |
+| FlatMatrix | 18.789 s | 68.52% |
+
+Across five independent one-epoch runs, `FlatMatrix` was about **1.51x faster** and reduced median training time by about **34.0%**, with identical accuracy.
 
 ### Analysis & Observations
 
-- **Nested Vector Overhead:** The baseline uses `std::vector<std::vector<double>>`, which has one separately allocated payload per row. Tall column vectors such as `784 x 1` therefore contain many tiny allocations and require pointer indirection, while a flat matrix stores all values in one contiguous allocation. This can increase allocation cost and reduce locality, but elapsed-time results alone do not prove a specific cache-miss rate.
+- **Nested Vector Overhead:** `NestedMatrix` uses `std::vector<std::vector<double>>`, which has one separately allocated payload per row. Tall column vectors such as `784 x 1` therefore contain many tiny allocations and require pointer indirection, while `FlatMatrix` stores all values in one contiguous allocation. This can increase allocation cost and reduce locality, but elapsed-time results alone do not prove a specific cache-miss rate.
 - **Workloads:** The matrix suite includes large dense multiplication, element-wise operations, transpose, activation mapping, and MNIST-shaped single-image/minibatch multiplication. The training suite measures an end-to-end `784 -> 128 -> 10` training step.
 - **Reporting:** Run the suite at least five times on a quiet machine and record the median for each workload before comparing implementations.
+
+## Roadmap
+
+- [x] Implement and benchmark `NestedMatrix` using `std::vector<std::vector<double>>`.
+- [x] Implement and benchmark contiguous `FlatMatrix` storage using `std::vector<double>`.
+- [x] Validate that both implementations produce identical deterministic MNIST accuracy.
+- [ ] Decouple dataset conversion and network training from the build-time `Matrix` alias so both precompiled implementations can be selected at runtime.
+- [ ] Add a terminal user interface for selecting a dataset, matrix implementation, epoch count, and sample limit.
+- [ ] Profile the end-to-end training path to identify the true CPU bottlenecks.
+- [ ] Add SIMD optimizations to the measured hot loops.
+- [ ] Explore a Metal GPU backend after the CPU implementation is profiled and optimized.
+- [ ] Improve model accuracy after the matrix-storage performance comparison is established, without mixing model-quality changes into the storage benchmark.
 
 ## Project Structure
 
